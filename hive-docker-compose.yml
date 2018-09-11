@@ -1,0 +1,36 @@
+version: "3"
+
+networks:
+  default:
+    external:
+      name: overlay_common_network_name
+
+services:
+  elasticsearch:
+    image: x.x.x.x:5000/elastic-0.1
+    environment:
+      - http.host=0.0.0.0
+      - transport.host=0.0.0.0
+      - xpack.security.enabled=false
+      - cluster.name=hive
+      - script.inline=true
+      - thread_pool.index.queue_size=100000
+      - thread_pool.search.queue_size=100000
+      - thread_pool.bulk.queue_size=100000
+    volumes:
+      - /mnt/elastic:/usr/share/elasticsearch/data:Z
+  cortex:
+    image: x.x.x.x:5000/cortex-0.1
+    ports:
+      - "0.0.0.0:9001:9001"
+  thehive:
+    image: 10.0.0.4:5000/thehive-0.1
+    depends_on:
+      - elasticsearch
+      - cortex
+    ports:
+      - "0.0.0.0:9000:9000"
+    volumes:
+      - /mnt/hiveapp/application.conf:/etc/thehive/application.conf
+
+#remember the /mnt/elastic mount needs chown -R 1000:1000
