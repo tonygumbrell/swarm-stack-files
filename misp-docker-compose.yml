@@ -1,0 +1,38 @@
+version: '3.6'
+
+networks:
+  default:
+    external:
+      name: ir_swarm_nw
+
+services:
+  misp-web:
+    depends_on:
+      - misp-db
+    hostname: misp-web
+    image: x.x.x.x:5000/misp-web-0.1
+    ports:
+      - "80:80"
+    environment:
+      - MYSQL_ROOT_PASSWORD=Passw0rds123!
+      - MYSQL_MISP_PASSWORD=Passw0rds123!
+      - MYSQL_HOST=misp-db
+      - MISP_ADMIN_EMAIL=admin@admin.test
+      - MISP_ADMIN_PASSPHRASE=Changeme123!
+      - MISP_BASEURL=http:\/\/misp\.test
+      - POSTFIX_RELAY_HOST=relay.fqdn
+      - TIMEZONE=Europe/Brussels
+    volumes:
+      - /mnt/random:/dev/random
+      - /mnt/misp:/var/www/MISP
+
+  misp-db:
+    hostname: misp-db
+    image: x.x.x.x:5000/misp-db-0.1
+    ports:
+      - "3306:3306"
+    environment:
+      - MYSQL_ROOT_PASSWORD=Passw0rds123!
+      - reschedule=on-node-failure
+    volumes:
+      - /mnt/mysql:/var/lib/mysql
